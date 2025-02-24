@@ -24,6 +24,9 @@ def parse_gltf(model_filename: str) -> Model | None:
             tri_accessor = model.accessors[primitive.indices]
             tri_bufferview = model.bufferViews[tri_accessor.bufferView]
 
+            mat_accessor = model.accessors[primitive.material]
+            mat_bufferview = model.bufferViews[mat_accessor.bufferView]
+
             uvs = np.frombuffer(
                 binary[
                     uv_bufferview.byteOffset + uv_accessor.byteOffset:
@@ -32,6 +35,7 @@ def parse_gltf(model_filename: str) -> Model | None:
                 dtype="float32",
                 count=uv_accessor.count * 2,
             ).reshape((-1, 2))
+
             vertices = np.frombuffer(
                 binary[
                     vertex_bufferview.byteOffset + vertex_accessor.byteOffset:
@@ -40,6 +44,7 @@ def parse_gltf(model_filename: str) -> Model | None:
                 dtype="float32",
                 count=vertex_accessor.count * 3,
             ).reshape((-1, 3))
+
             triangles = np.frombuffer(
                 binary[
                     tri_bufferview.byteOffset + tri_accessor.byteOffset:
@@ -49,6 +54,17 @@ def parse_gltf(model_filename: str) -> Model | None:
                 count=tri_accessor.count,
             ).reshape((-1, 3))
 
-            result_model.add_mesh(vertices, uvs, triangles)
+            material = np.frombuffer(
+                binary[
+                    mat_bufferview.byteOffset + mat_accessor.byteOffset:
+                    mat_bufferview.byteOffset + mat_bufferview.byteLength
+                ],
+                dtype="uint8",
+                count=mat_accessor.count
+            )
+
+            print(material, mat_accessor.count)
+
+            result_model.add_mesh(vertices, uvs, triangles, 0)
 
     return result_model

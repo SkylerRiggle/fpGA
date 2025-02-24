@@ -1,0 +1,6 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../../fpGA.ip_user_files/ipstatic" \
+"fpGA_render_controller_time_impl.v" \
+
+# Do not sort compile order
+nosort

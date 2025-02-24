@@ -2,10 +2,10 @@
 -- Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2024.2 (win64) Build 5239630 Fri Nov 08 22:35:27 MST 2024
--- Date        : Wed Feb 19 21:09:56 2025
+-- Date        : Wed Feb 19 17:03:01 2025
 -- Host        : shit_box running 64-bit major release  (build 9200)
--- Command     : write_vhdl -force -mode funcsim
---               c:/Dev/masters/vivado/fpGA/fpGA.gen/sources_1/ip/clk_wiz/clk_wiz_sim_netlist.vhdl
+-- Command     : write_vhdl -force -mode funcsim -rename_top clk_wiz -prefix
+--               clk_wiz_ clk_wiz_sim_netlist.vhdl
 -- Design      : clk_wiz
 -- Purpose     : This VHDL netlist is a functional simulation representation of the design and should not be modified or
 --               synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -15,7 +15,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 library UNISIM;
 use UNISIM.VCOMPONENTS.ALL;
-entity clk_wiz_clk_wiz is
+entity clk_wiz_clk_wiz_clk_wiz is
   port (
     clk_out1 : out STD_LOGIC;
     clk_out2 : out STD_LOGIC;
@@ -23,9 +23,9 @@ entity clk_wiz_clk_wiz is
     locked : out STD_LOGIC;
     clk_in1 : in STD_LOGIC
   );
-end clk_wiz_clk_wiz;
+end clk_wiz_clk_wiz_clk_wiz;
 
-architecture STRUCTURE of clk_wiz_clk_wiz is
+architecture STRUCTURE of clk_wiz_clk_wiz_clk_wiz is
   signal clk_in1_clk_wiz : STD_LOGIC;
   signal clk_out1_clk_wiz : STD_LOGIC;
   signal clk_out2_clk_wiz : STD_LOGIC;
@@ -85,12 +85,12 @@ clkout2_buf: unisim.vcomponents.BUFG
 mmcm_adv_inst: unisim.vcomponents.MMCME2_ADV
     generic map(
       BANDWIDTH => "OPTIMIZED",
-      CLKFBOUT_MULT_F => 39.000000,
+      CLKFBOUT_MULT_F => 9.000000,
       CLKFBOUT_PHASE => 0.000000,
       CLKFBOUT_USE_FINE_PS => false,
       CLKIN1_PERIOD => 8.000000,
       CLKIN2_PERIOD => 0.000000,
-      CLKOUT0_DIVIDE_F => 13.000000,
+      CLKOUT0_DIVIDE_F => 15.000000,
       CLKOUT0_DUTY_CYCLE => 0.500000,
       CLKOUT0_PHASE => 0.000000,
       CLKOUT0_USE_FINE_PS => false,
@@ -120,7 +120,7 @@ mmcm_adv_inst: unisim.vcomponents.MMCME2_ADV
       CLKOUT6_PHASE => 0.000000,
       CLKOUT6_USE_FINE_PS => false,
       COMPENSATION => "ZHOLD",
-      DIVCLK_DIVIDE => 5,
+      DIVCLK_DIVIDE => 1,
       IS_CLKINSEL_INVERTED => '0',
       IS_PSEN_INVERTED => '0',
       IS_PSINCDEC_INVERTED => '0',
@@ -187,7 +187,7 @@ end clk_wiz;
 
 architecture STRUCTURE of clk_wiz is
 begin
-inst: entity work.clk_wiz_clk_wiz
+inst: entity work.clk_wiz_clk_wiz_clk_wiz
      port map (
       clk_in1 => clk_in1,
       clk_out1 => clk_out1,

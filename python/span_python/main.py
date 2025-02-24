@@ -1,7 +1,7 @@
 import loader
 
 
-def main(scene_model_filename: str):
+def main(scene_model_filename: str, screen_width: int, screen_height: int):
     name_parts = scene_model_filename.split(".")
     assert len(name_parts) > 0
 
@@ -10,9 +10,9 @@ def main(scene_model_filename: str):
         case "gltf" | "glb":
             scene_model = loader.parse_gltf(scene_model_filename)
         case _:
-            scene_model = loader.parse_gltf(scene_model_filename)
+            print("UNKNOWN MODEL FORMAT (",  name_parts[-1], ')')
 
     assert scene_model is not None
 
 if __name__ == "__main__":
-    main("./assets/sponza/sponza.glb")
+    main("./assets/sponza/sponza.glb", 1280, 720)

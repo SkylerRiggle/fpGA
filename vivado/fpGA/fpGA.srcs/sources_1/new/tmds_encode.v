@@ -24,23 +24,19 @@ module tmds_encode(
     output [9:0] tmds_data
 );
 
-integer i;
 reg [8:0] p_xor;
 reg [8:0] p_xnor;
 
 reg active_1;
-reg [1:0] ctl_1;
-reg [7:0] pixel_data_1;
+reg ctl_bit;
 reg [3:0] ones_1;
 reg [3:0] ones_xor;
 reg [3:0] ones_xnor;
 
 reg active_2;
-reg [1:0] ctl_2;
 reg [8:0] pixel_data_2;
 reg [3:0] ones_2;
-reg [3:0] zeros_2;
-reg signed [5:0] diff_2;
+reg signed [5:0] diff;
 
 reg signed [5:0] disparity;
 reg [9:0] t_data;
@@ -50,10 +46,20 @@ begin
     p_xor[0] = pixel_data[0];
     p_xnor[0] = pixel_data[0];
     
-    for (i = 1; i < 8; i = i + 1) begin
-        p_xor[i] = p_xor[i - 1] ^ pixel_data[i];
-        p_xnor[i] = p_xnor[i - 1] ~^ pixel_data[i];
-    end
+    p_xor[1] = p_xor[0] ^ pixel_data[1];
+    p_xnor[1] = p_xnor[0] ~^ pixel_data[1];
+    p_xor[2] = p_xor[1] ^ pixel_data[2];
+    p_xnor[2] = p_xnor[1] ~^ pixel_data[2];
+    p_xor[3] = p_xor[2] ^ pixel_data[3];
+    p_xnor[3] = p_xnor[2] ~^ pixel_data[3];
+    p_xor[4] = p_xor[3] ^ pixel_data[4];
+    p_xnor[4] = p_xnor[3] ~^ pixel_data[4];
+    p_xor[5] = p_xor[4] ^ pixel_data[5];
+    p_xnor[5] = p_xnor[4] ~^ pixel_data[5];
+    p_xor[6] = p_xor[5] ^ pixel_data[6];
+    p_xnor[6] = p_xnor[5] ~^ pixel_data[6];
+    p_xor[7] = p_xor[6] ^ pixel_data[7];
+    p_xnor[7] = p_xnor[6] ~^ pixel_data[7];
     
     p_xor[8] = 1'b1;
     p_xnor[8] = 1'b0;
@@ -62,11 +68,8 @@ end
 always @(posedge pixel_clk)
 begin
     active_1 <= active;
-    ctl_1 <= ctl;
-    pixel_data_1 <= pixel_data;
-    
+    ctl_bit <= pixel_data[0];
     active_2 <= active_1;
-    ctl_2 <= ctl_1;
     
     ones_1 <= (
         pixel_data[0] + pixel_data[1] + pixel_data[2] + pixel_data[3] +
@@ -83,16 +86,14 @@ begin
         p_xnor[4] + p_xnor[5] + p_xnor[6] + p_xnor[7]
     );
     
-    if ((ones_1 > 4) || (ones_1 == 4 && pixel_data_1[0] == 1'b0)) begin
+    if ((ones_1 > 4) || (ones_1 == 4 && ctl_bit == 1'b0)) begin
         pixel_data_2 <= p_xnor;
         ones_2 <= ones_xnor;
-        zeros_2 <= 8 - ones_xnor;
-        diff_2 <= $signed(ones_xnor) + $signed(ones_xnor) - 8;
+        diff <= $signed(ones_xnor) + $signed(ones_xnor) - 8;
     end else begin
         pixel_data_2 <= p_xor;
         ones_2 <= ones_xor;
-        zeros_2 <= 8 - ones_xor;
-        diff_2 <= $signed(ones_xor) + $signed(ones_xor) - 8;
+        diff <= $signed(ones_xor) + $signed(ones_xor) - 8;
     end
     
     if (rst) begin
@@ -114,27 +115,27 @@ begin
         if ((disparity == 0) || (ones_2 == 4)) begin
             if (pixel_data_2[8]) begin
                 t_data <= { 1'b0, 1'b1, pixel_data_2[7:0] };
-                disparity <= disparity + diff_2;
+                disparity <= disparity + diff;
             end else begin
                 t_data <= { 1'b1, 1'b0, ~pixel_data_2[7:0] };
-                disparity <= disparity - diff_2;
+                disparity <= disparity - diff;
             end
         end else begin
             if ((disparity > 0 && ones_2 > 4) || (disparity < 0 && ones_2 < 4)) begin
                 if (pixel_data_2[8]) begin
                     t_data <= { 1'b1, 1'b1, ~pixel_data_2[7:0] };
-                    disparity <= disparity - diff_2;
+                    disparity <= disparity - diff;
                 end else begin
                     t_data <= { 1'b1, 1'b0, ~pixel_data_2[7:0] };
-                    disparity <= disparity - diff_2;
+                    disparity <= disparity - diff;
                 end
             end else begin
                 if (pixel_data_2[8]) begin
                     t_data <= { 1'b0, 1'b1, pixel_data_2[7:0] };
-                    disparity <= disparity + diff_2;
+                    disparity <= disparity + diff;
                 end else begin
                     t_data <= { 1'b0, 1'b0, pixel_data_2[7:0] };
-                    disparity <= disparity + diff_2 - 2;
+                    disparity <= disparity + diff - 2;
                 end
             end
         end
